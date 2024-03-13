@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cp -Ravx /web_server /export/web_server
+echo "export finishied."
+
+
+
+
+
+
+
+
