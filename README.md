@@ -4,8 +4,8 @@ HMengine-FE 是一个隐藏了 Nginx 特征的 Docker 镜像，可以平替 Ngin
 
 对应镜像及版本：
 
-- `hazx/hmengine-fe:1.0`
-- `hazx/hmengine-fe:1.0-arm`
+- `hazx/hmengine-fe:1.1`
+- `hazx/hmengine-fe:1.1-arm`
 
 # 目录说明
 
@@ -21,7 +21,7 @@ HMengine-FE 是一个隐藏了 Nginx 特征的 Docker 镜像，可以平替 Ngin
 
 # 使用镜像
 
-你可以直接下载使用我编译好的镜像 `docker pull hazx/hmengine-fe:1.0`（ARM64 平台使用 1.0-arm），你也可以参照 [编译与打包](#编译与打包) 部分的说明自行编译打包镜像。
+你可以直接下载使用我编译好的镜像 `docker pull hazx/hmengine-fe:1.1`（ARM64 平台使用 1.1-arm），你也可以参照 [编译与打包](#编译与打包) 部分的说明自行编译打包镜像。
 
 ## 需要做映射的内部路径
 
@@ -50,7 +50,7 @@ docker run -d \
     -v /opt/hmengine-fe/example/website/web_log:/home/web_log \
     --name web_server \
     --restart unless-stopped \
-    hazx/hmengine-fe:1.0
+    hazx/hmengine-fe:1.1
 ```
 
 # 编译与打包
@@ -93,7 +93,9 @@ bash build.sh 8
 --with-http_secure_link_module \
 --with-http_realip_module \
 --with-http_dav_module \
---with-http_v2_module
+--with-http_v2_module \
+--with-stream \
+--with-stream_ssl_module
 ```
 
 
