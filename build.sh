@@ -9,7 +9,7 @@
 
 docker_path=hazx
 docker_img=hmengine-fe
-docker_tag=1.1
+docker_tag=1.2
 ## 编译线程数
 make_threads=${1:-2}
 ## Server 标记
@@ -60,8 +60,8 @@ docker run --rm --name tmp-hmengine-build-export \
 mkdir -p output
 cp build/IDR-imginit-sh build_${docker_img}/package/img_init.sh
 cp build/IDR-webserver-sh build_${docker_img}/package/webserver.sh
-cp -R build/fe_df_html build_${docker_img}/package/
-sed -i "s/server_name_web/${server_name_page}/g" build_${docker_img}/package/fe_df_html/index.html
+cp -R build/html build_${docker_img}/package/
+sed -i "s/server_name_web/${server_name_page}/g" build_${docker_img}/package/html/index.html
 cp -R build/conf build_${docker_img}/package/
 cat <<EOF > build_${docker_img}/package/Dockerfile
 FROM centos:7.9.2009
@@ -70,14 +70,14 @@ LABEL Version="${docker_tag}"
 COPY web_server /web_server
 COPY img_init.sh /
 COPY webserver.sh /web_server/
-COPY fe_df_html /web_server/fe_df_html
-COPY conf /web_server/fe/conf
+COPY html /web_server/html
+COPY conf /web_server/conf
 RUN chmod a+x /img_init.sh ;\
     /img_init.sh ;\
     rm -f /img_init.sh ;\
     rm -f /Dockerfile
 WORKDIR /web_server
-ENV PATH "/web_server/fe/sbin:$PATH"
+ENV PATH "/web_server/sbin:$PATH"
 CMD /web_server/webserver.sh
 EOF
 docker build -t ${docker_path}/${docker_img}:${docker_tag} build_${docker_img}/package/

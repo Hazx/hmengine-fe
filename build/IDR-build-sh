@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ## 组件版本
-set_ver_nginx=1.24.0
+set_ver_nginx=1.26.0
 set_ver_openssl=1.1.1w
 set_ver_pcre=8.45
-set_ver_zlib=1.3
+set_ver_zlib=1.3.1
 
 ## 准备 yum 源
 yum makecache
@@ -28,7 +28,7 @@ tar zxvf pcre-${set_ver_pcre}.tar.gz
 tar zxvf zlib-${set_ver_zlib}.tar.gz
 cd /root/hazx/fe/nginx-${set_ver_nginx}/
 ./configure \
-    --prefix=/web_server/fe \
+    --prefix=/web_server \
     --with-openssl=/root/hazx/fe/openssl-${set_ver_openssl} \
     --with-pcre=/root/hazx/fe/pcre-${set_ver_pcre} \
     --with-zlib=/root/hazx/fe/zlib-${set_ver_zlib} \
@@ -45,11 +45,12 @@ cd /root/hazx/fe/nginx-${set_ver_nginx}/
     --with-stream_ssl_module
 sed -i "s/\"Server\:\ \"\ NGINX_VER\ CRLF\;/\"Server\:\ ${set_server_name:-HMengine}\"\ CRLF\;/" src/http/ngx_http_header_filter_module.c
 sed -i "s/<center>\"\ NGINX_VER\ \"<\/center>/<center>${set_server_name:-HMengine}<\/center>/" src/http/ngx_http_special_response.c
+sed -i "s/nginx\:/${set_server_name:-HMengine}\:/" src/os/unix/ngx_setproctitle.c
 make -j${set_make_threads:-2}
 make install
-mv /web_server/fe/sbin/nginx /web_server/fe/sbin/fe
-rm -fr /web_server/fe/html
-rm -fr /web_server/fe/conf
+mv /web_server/sbin/nginx /web_server/sbin/fe
+rm -fr /web_server/html
+rm -fr /web_server/conf
 
 echo "build finishied."
 

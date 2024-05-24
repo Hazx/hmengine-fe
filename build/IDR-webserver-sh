@@ -9,13 +9,38 @@ if [ -d "/home/web_log" ];then
     chmod -R 664 /home/web_log
 fi
 
+
 ## 判断存在并删除pid
-if [ -e "/web_server/fe/logs/fe.pid" ];then
-    rm -f /web_server/fe/logs/fe.pid
+if [ -e "/web_server/logs/fe.pid" ];then
+    rm -f /web_server/logs/fe.pid
 fi
 
-## 启动 Front-End
-cd /web_server/fe
+
+## 处理变量
+## FE_WORKER_PROCESSES
+if [ ! -n "${FE_WORKER_PROCESSES}" ];then
+    sed -i "s/##worker_processes##/worker_processes\ 1/" /web_server/conf/fe.conf
+else
+    if [[ ${FE_WORKER_PROCESSES} == "auto" ]];then
+        sed -i "s/##worker_processes##/worker_processes\ auto/" /web_server/conf/fe.conf
+    else
+        sed -i "s/##worker_processes##/worker_processes\ ${FE_WORKER_PROCESSES}/" /web_server/conf/fe.conf
+    fi
+fi
+## FE_GZIP
+if [ ! -n "${FE_GZIP}" ];then
+    sed -i "s/##gzip##/gzip\ on/" /web_server/conf/fe.conf
+else
+    if [[ ${FE_GZIP} == "off" ]];then
+        sed -i "s/##gzip##/gzip\ off/" /web_server/conf/fe.conf
+    else
+        sed -i "s/##gzip##/gzip\ on/" /web_server/conf/fe.conf
+    fi
+fi
+
+
+## 启动 HMengine Front-End
+cd /web_server
 sbin/fe -c conf/fe.conf -g "daemon off;"
 if [ "$?" != 0 ] ; then
     echo "[$(date +%Y%m%d-%H%M%S)] Front-End Start Failed."

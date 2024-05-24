@@ -3,7 +3,8 @@
 ## 配置权限
 groupadd www
 useradd -M -s /bin/false -g www www
-chmod a+x /web_server/fe/sbin/fe
+mkdir -p /web_server/logs
+chmod a+x /web_server/sbin/fe
 chmod a+x /web_server/webserver.sh
 chmod a+x /web_server/keep
 
