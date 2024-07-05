@@ -4,8 +4,8 @@ HMengine-FE 是一个隐藏了 Nginx 特征的 Docker 镜像，可以平替 Ngin
 
 对应镜像及版本：
 
-- `hazx/hmengine-fe:1.2`
-- ~~`hazx/hmengine-fe:1.2-arm`~~
+- `hazx/hmengine-fe:1.3`
+- ~~`hazx/hmengine-fe:1.3-arm`~~
 
 # 目录说明
 
@@ -14,20 +14,20 @@ HMengine-FE 是一个隐藏了 Nginx 特征的 Docker 镜像，可以平替 Ngin
 
 # 组件版本
 
-- Nginx：1.26.0
+- Nginx：1.26.1
 - OpenSSL：1.1.1w
 - PCRE：8.45
 - Zlib：1.3.1
 
 # 使用镜像
 
-你可以直接下载使用我编译好的镜像 `docker pull hazx/hmengine-fe:1.2`（~~ARM64 平台使用 1.2-arm~~），你也可以参照 [编译与打包](#编译与打包) 部分的说明自行编译打包镜像。
+你可以直接下载使用我编译好的镜像 `docker pull hazx/hmengine-fe:1.3`（~~ARM64 平台使用 1.3-arm~~），你也可以参照 [编译与打包](#编译与打包) 部分的说明自行编译打包镜像。
 
 ## 需要做映射的内部路径
 
 - Nginx 配置目录：`/web_server/conf`（主配置文件名为 fe.conf）
-- WEB 文件目录：`/web_server/html`（非必须设定此路径，依 Nginx 配置文件而定）
-- 日志文件目录：`/web_server/logs`（非必须设定此路径，依配置文件而定）
+- WEB 文件默认目录：`/web_server/html`（非必须设定此路径，依 Nginx 配置文件而定）
+- 日志文件默认目录：`/web_server/logs`（非必须设定此路径，依配置文件而定）
 
 > 如果你需要改变 WEB、日志或其他路径映射，你需要注意修改 Nginx 配置文件的相应路径参数。
 
@@ -50,7 +50,7 @@ docker run -d \
     -v /opt/hmengine-fe/example/website/web_log:/home/web_log \
     --name web_server \
     --restart unless-stopped \
-    hazx/hmengine-fe:1.2
+    hazx/hmengine-fe:1.3
 ```
 
 ## 环境变量
@@ -59,6 +59,7 @@ docker run -d \
 ---|---|---|---
 FE_WORKER_PROCESSES | 1 | auto / 数字 | Worker 数量
 FE_GZIP | on | on / off | Gzip 压缩
+FE_PORT | 80 | 数字 | 监听端口
 
 *环境变量仅在使用自带的默认配置文件时生效。*
 

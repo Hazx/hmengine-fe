@@ -1,26 +1,39 @@
 #!/bin/bash
 
 ## 组件版本
-set_ver_nginx=1.26.0
-set_ver_openssl=1.1.1w
-set_ver_pcre=8.45
-set_ver_zlib=1.3.1
+export set_ver_nginx=1.26.1
+export set_ver_openssl=1.1.1w
+export set_ver_pcre=8.45
+export set_ver_zlib=1.3.1
 
-## 准备 yum 源
-yum makecache
-yum install epel-release -y
-yum makecache fast
+## 准备 APT 源
+mv /etc/apt/sources.list /etc/apt/sources.list.bk
+cat <<EOF > /etc/apt/sources.list
+deb http://mirrors.bfsu.edu.cn/ubuntu/ jammy main restricted universe multiverse
+# deb-src http://mirrors.bfsu.edu.cn/ubuntu/ jammy main restricted universe multiverse
+deb http://mirrors.bfsu.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+# deb-src http://mirrors.bfsu.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+deb http://mirrors.bfsu.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+# deb-src http://mirrors.bfsu.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+deb http://mirrors.bfsu.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
+# deb-src http://mirrors.bfsu.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
+# deb http://mirrors.bfsu.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+# deb-src http://mirrors.bfsu.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+EOF
+apt update -y
+
+# 调整时区
+export DEBIAN_FRONTEND="noninteractive"
+apt install -y tzdata
+cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 ## 工作目录
 mkdir /web_server
 chmod -R 755 /web_server
 
-## Nginx
-yum install -y openssl openssl-devel libxml2 libxml2-devel curl curl-devel \
-    libjpeg libjpeg-devel sqlite sqlite-devel libpng libpng-devel freetype-devel \
-    gmp-devel libevent libevent-devel gcc gcc-c++ unzip python-docutils libedit \
-    libedit-devel zlib zlib-devel git zip screen vim pcre-devel readline \
-    libstdc++-devel automake autoconf wget unzip 
+## 编译 Nginx
+apt install -y openssl libxml2 curl sqlite gcc g++ unzip git zip screen vim \
+    automake autoconf wget make
 cd /root/hazx/fe
 tar zxvf nginx-${set_ver_nginx}.tar.gz
 tar zxvf openssl-${set_ver_openssl}.tar.gz

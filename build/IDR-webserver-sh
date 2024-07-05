@@ -37,6 +37,12 @@ else
         sed -i "s/##gzip##/gzip\ on/" /web_server/conf/fe.conf
     fi
 fi
+## FE_PORT
+if [ ! -n "${FE_PORT}" ];then
+    sed -i "s/##port##/80/" /web_server/conf/fe.conf
+else
+    sed -i "s/##port##/${FE_PORT}/" /web_server/conf/fe.conf
+fi
 
 
 ## 启动 HMengine Front-End

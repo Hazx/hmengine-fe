@@ -9,7 +9,8 @@
 
 docker_path=hazx
 docker_img=hmengine-fe
-docker_tag=1.2
+docker_tag=1.3
+docker_base=ubuntu:jammy-20240627.1
 ## 编译线程数
 make_threads=${1:-2}
 ## Server 标记
@@ -32,7 +33,7 @@ cp -R build build_${docker_img}/
 echo "export set_server_name=\"${server_name}\"" >> build_${docker_img}/build/IDR-buildvar-sh
 echo "export set_make_threads=\"${make_threads}\"" >> build_${docker_img}/build/IDR-buildvar-sh
 cat <<EOF > build_${docker_img}/build/Dockerfile
-FROM centos:7.9.2009
+FROM ${docker_base}
 LABEL maintainer="hazx632823367@gmail.com"
 LABEL Version="${docker_tag}-build"
 COPY nginx /root/hazx/fe
@@ -64,7 +65,7 @@ cp -R build/html build_${docker_img}/package/
 sed -i "s/server_name_web/${server_name_page}/g" build_${docker_img}/package/html/index.html
 cp -R build/conf build_${docker_img}/package/
 cat <<EOF > build_${docker_img}/package/Dockerfile
-FROM centos:7.9.2009
+FROM ${docker_base}
 LABEL maintainer="hazx632823367@gmail.com"
 LABEL Version="${docker_tag}"
 COPY web_server /web_server
@@ -79,6 +80,7 @@ RUN chmod a+x /img_init.sh ;\
 WORKDIR /web_server
 ENV PATH "/web_server/sbin:$PATH"
 CMD /web_server/webserver.sh
+EXPOSE 80
 EOF
 docker build -t ${docker_path}/${docker_img}:${docker_tag} build_${docker_img}/package/
 docker save ${docker_path}/${docker_img}:${docker_tag} | gzip -c > output/${docker_img}-${docker_tag}.tar.gz
