@@ -1,21 +1,5 @@
 #!/bin/bash
 
-## 覆盖WEB目录及文件权限
-# if [ -d "/home/web" ];then
-#     chown -R www:www /home/web
-# fi
-if [ -d "/home/web_log" ];then
-    chown -R root:root /home/web_log
-    chmod -R 664 /home/web_log
-fi
-
-
-## 判断存在并删除pid
-if [ -e "/web_server/logs/fe.pid" ];then
-    rm -f /web_server/logs/fe.pid
-fi
-
-
 ## 处理变量
 ## FE_WORKER_PROCESSES
 if [ ! -n "${FE_WORKER_PROCESSES}" ];then
@@ -45,12 +29,18 @@ else
 fi
 
 
+## 判断存在并删除pid
+if [ -e "/web_server/logs/fe.pid" ];then
+    rm -f /web_server/logs/fe.pid
+fi
+
+
 ## 启动 HMengine Front-End
+echo "[$(date +%Y%m%d-%H%M%S)] Nginx Starting."
 cd /web_server
 sbin/fe -c conf/fe.conf -g "daemon off;"
 if [ "$?" != 0 ] ; then
-    echo "[$(date +%Y%m%d-%H%M%S)] Front-End Start Failed."
-else
-    echo "[$(date +%Y%m%d-%H%M%S)] Front-End Started."
+    echo "[$(date +%Y%m%d-%H%M%S)] Nginx Start Failed."
+    sleep 10
 fi
 

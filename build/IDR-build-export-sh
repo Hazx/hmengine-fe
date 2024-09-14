@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir -p /export/web_server
+cp -Ravx /web_server/* /export/web_server/
+echo "export finishied."
+
+
+
+
+
+
+
+

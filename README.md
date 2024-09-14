@@ -4,8 +4,8 @@ HMengine-FE 是一个隐藏了 Nginx 特征的 Docker 镜像，可以平替 Ngin
 
 对应镜像及版本：
 
-- `hazx/hmengine-fe:1.3`
-- ~~`hazx/hmengine-fe:1.3-arm`~~
+- `hazx/hmengine-fe:1.4`
+- `hazx/hmengine-fe:1.4-arm`
 
 # 目录说明
 
@@ -14,14 +14,14 @@ HMengine-FE 是一个隐藏了 Nginx 特征的 Docker 镜像，可以平替 Ngin
 
 # 组件版本
 
-- Nginx：1.26.1
-- OpenSSL：1.1.1w
+- Nginx：1.26.2
+- OpenSSL：3.3.2
 - PCRE：8.45
 - Zlib：1.3.1
 
 # 使用镜像
 
-你可以直接下载使用我编译好的镜像 `docker pull hazx/hmengine-fe:1.3`（~~ARM64 平台使用 1.3-arm~~），你也可以参照 [编译与打包](#编译与打包) 部分的说明自行编译打包镜像。
+你可以直接下载使用我编译好的镜像 `docker pull hazx/hmengine-fe:1.4`（ARM64 平台使用 1.4-arm），你也可以参照 [编译与打包](#编译与打包) 部分的说明自行编译打包镜像。
 
 ## 需要做映射的内部路径
 
@@ -39,18 +39,18 @@ HMengine-FE 是一个隐藏了 Nginx 特征的 Docker 镜像，可以平替 Ngin
 
 ## 创建容器示例
 
-以下命令以将文件释放在目录 `/opt/hmengine-fe` 下为例，实际操作请以实际情况为准。
+下列命令以将文件释放在目录 `/opt/hmengine-fe` 下为例，实际操作请以实际情况为准。
 
 ```shell
-chown -R 1000:1000 example/website/web
 docker run -d \
     -p 80:80 \
     -v /opt/hmengine-fe/example/fe:/web_server/conf \
-    -v /opt/hmengine-fe/example/website/web:/home/web \
-    -v /opt/hmengine-fe/example/website/web_log:/home/web_log \
+    -v /opt/hmengine-fe/example/web:/web_server/html \
+    -v /opt/hmengine-fe/example/logs:/web_server/logs \
+    -e FE_WORKER_PROCESSES=auto \
     --name web_server \
     --restart unless-stopped \
-    hazx/hmengine-fe:1.3
+    hazx/hmengine-fe:1.4
 ```
 
 ## 环境变量
@@ -61,7 +61,7 @@ FE_WORKER_PROCESSES | 1 | auto / 数字 | Worker 数量
 FE_GZIP | on | on / off | Gzip 压缩
 FE_PORT | 80 | 数字 | 监听端口
 
-*环境变量仅在使用自带的默认配置文件时生效。*
+*环境变量仅在使用自带的默认配置文件且首次启动时生效。*
 
 
 # 编译与打包
@@ -92,21 +92,20 @@ bash build.sh 8
 
 ```shell
 ./configure \
---prefix=/web_server \
---with-openssl=/path/to/openssl \
---with-pcre=/path/to/pcre \
---with-zlib=/path/to/zlib \
---with-http_ssl_module \
---with-http_sub_module \
---with-http_stub_status_module \
---with-pcre-jit \
---with-pcre \
---with-http_secure_link_module \
---with-http_realip_module \
---with-http_dav_module \
---with-http_v2_module \
---with-stream \
---with-stream_ssl_module
+    --prefix=/web_server/nginx \
+    --with-openssl=/path/to/openssl \
+    --with-zlib=/path/to/zlib \
+    --with-http_ssl_module \
+    --with-http_sub_module \
+    --with-http_stub_status_module \
+    --with-http_secure_link_module \
+    --with-pcre \
+    --with-pcre-jit \
+    --with-http_realip_module \
+    --with-http_dav_module \
+    --with-http_v2_module
+    --with-stream \
+    --with-stream_ssl_module
 ```
 
 
