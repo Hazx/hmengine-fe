@@ -36,11 +36,11 @@ fi
 
 
 ## 启动 HMengine Front-End
-echo "[$(date +%Y%m%d-%H%M%S)] Nginx Starting."
+echo "[$(date +%Y%m%d-%H%M%S)] HMengine-FE Service Starting."
 cd /web_server
 sbin/fe -c conf/fe.conf -g "daemon off;"
 if [ "$?" != 0 ] ; then
-    echo "[$(date +%Y%m%d-%H%M%S)] Nginx Start Failed."
+    echo "[$(date +%Y%m%d-%H%M%S)] HMengine-FE Service Start Failed."
     sleep 10
 fi
 
