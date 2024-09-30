@@ -1,14 +1,14 @@
 #!/bin/bash
 
-## 内置模块来源
-## http://nginx.org/en/download.html
+## 模块来源
+## https://nginx.org/en/download.html
 ## https://www.openssl.org/source/
 ## https://www.zlib.net/
 
 
 docker_path=hazx
 docker_img=hmengine-fe
-docker_tag=1.5
+docker_tag=1.6
 docker_base=ubuntu:jammy-20240911.1
 ## 编译线程数
 make_threads=${1:-2}
@@ -17,6 +17,10 @@ server_name='HMengine'
 ## 默认页面中的服务名称
 server_name_page='HMengine-FE'
 
+arch=$(uname -p)
+if [[ $arch == "aarch64" ]] || [[ $arch == "arm64" ]];then
+    docker_tag=${docker_tag}-arm
+fi
 
 ## 清理工作目录
 rm -fr build_${docker_img}
@@ -28,6 +32,15 @@ cp -R build build_${docker_img}/
 echo "export set_server_name=\"${server_name}\"" >> build_${docker_img}/build/IDR-buildvar-sh
 echo "export set_server_name_page=\"${server_name_page}\"" >> build_${docker_img}/build/IDR-buildvar-sh
 echo "export set_make_threads=\"${make_threads}\"" >> build_${docker_img}/build/IDR-buildvar-sh
+if [ $http_proxy ];then
+    echo "export http_proxy=${http_proxy}" >> build_${docker_img}/build/IDR-buildvar-sh
+fi
+if [ $https_proxy ];then
+    echo "export https_proxy=${https_proxy}" >> build_${docker_img}/build/IDR-buildvar-sh
+fi
+if [ $no_proxy ];then
+    echo "export no_proxy=${no_proxy}" >> build_${docker_img}/build/IDR-buildvar-sh
+fi
 pwd_dir=$(cd $(dirname $0); pwd)
 export BUILDKIT_STEP_LOG_MAX_SIZE=-1
 
@@ -53,7 +66,6 @@ COPY IDR-build-export-sh /root/hazx/export.sh
 COPY IDR-build-nginx-sh /root/hazx/build.sh
 COPY IDR-buildvar-sh /root/hazx/buildvar.sh
 RUN chmod a+x /root/hazx/*.sh ;\
-    . /root/hazx/buildvar.sh ;\
     /root/hazx/build.sh
 CMD /root/hazx/export.sh
 EOF

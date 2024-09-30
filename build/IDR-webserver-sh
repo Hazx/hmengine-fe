@@ -1,31 +1,33 @@
 #!/bin/bash
 
 ## 处理变量
-## FE_WORKER_PROCESSES
-if [ ! -n "${FE_WORKER_PROCESSES}" ];then
-    sed -i "s/##worker_processes##/worker_processes\ 1/" /web_server/conf/fe.conf
-else
-    if [[ ${FE_WORKER_PROCESSES} == "auto" ]];then
-        sed -i "s/##worker_processes##/worker_processes\ auto/" /web_server/conf/fe.conf
+if [[ $(head -n 1 /web_server/conf/fe.conf) == "##hmengine_df_config##" ]];then
+    ## FE_WORKER_PROCESSES
+    if [ ! -n "${FE_WORKER_PROCESSES}" ];then
+        sed -i "s/##worker_processes##/worker_processes\ 1/" /web_server/conf/fe.conf
     else
-        sed -i "s/##worker_processes##/worker_processes\ ${FE_WORKER_PROCESSES}/" /web_server/conf/fe.conf
+        if [[ ${FE_WORKER_PROCESSES} == "auto" ]];then
+            sed -i "s/##worker_processes##/worker_processes\ auto/" /web_server/conf/fe.conf
+        else
+            sed -i "s/##worker_processes##/worker_processes\ ${FE_WORKER_PROCESSES}/" /web_server/conf/fe.conf
+        fi
     fi
-fi
-## FE_GZIP
-if [ ! -n "${FE_GZIP}" ];then
-    sed -i "s/##gzip##/gzip\ on/" /web_server/conf/fe.conf
-else
-    if [[ ${FE_GZIP} == "off" ]];then
-        sed -i "s/##gzip##/gzip\ off/" /web_server/conf/fe.conf
-    else
+    ## FE_GZIP
+    if [ ! -n "${FE_GZIP}" ];then
         sed -i "s/##gzip##/gzip\ on/" /web_server/conf/fe.conf
+    else
+        if [[ ${FE_GZIP} == "off" ]];then
+            sed -i "s/##gzip##/gzip\ off/" /web_server/conf/fe.conf
+        else
+            sed -i "s/##gzip##/gzip\ on/" /web_server/conf/fe.conf
+        fi
     fi
-fi
-## FE_PORT
-if [ ! -n "${FE_PORT}" ];then
-    sed -i "s/##port##/80/" /web_server/conf/fe.conf
-else
-    sed -i "s/##port##/${FE_PORT}/" /web_server/conf/fe.conf
+    ## FE_PORT
+    if [ ! -n "${FE_PORT}" ];then
+        sed -i "s/##port##/80/" /web_server/conf/fe.conf
+    else
+        sed -i "s/##port##/${FE_PORT}/" /web_server/conf/fe.conf
+    fi
 fi
 
 

@@ -11,15 +11,34 @@ echo "安装Nginx依赖组件..."
 apt install -y openssl libxml2 sqlite libpcre2-dev
 sleep 6
 
+. /root/hazx/buildvar.sh
+
+## 准备Nginx-Hpack-Encode
+cd /root/hazx/src/
+unzip nginx-hpack-encode.zip
+arch=$(uname -p)
+if [[ $arch == "x86_64" ]] || [[ $arch == "amd64" ]];then
+    wget https://go.dev/dl/go1.22.3.linux-amd64.tar.gz
+    tar zxvf go1.22.3.linux-amd64.tar.gz
+elif [[ $arch == "aarch64" ]] || [[ $arch == "arm64" ]];then
+    wget https://go.dev/dl/go1.22.3.linux-arm64.tar.gz
+    tar zxvf go1.22.3.linux-arm64.tar.gz
+fi
+export PATH=$PATH:/root/hazx/src/go/bin
+cd /root/hazx/src/nginx-hpack-encode
+go mod tidy
+server_name_hpack=$(go run nginx-hpack-encode.go ${set_server_name:-HMengine})
+sleep 6
+
 ## 处理源码
 cd /root/hazx/src
 tar zxvf nginx-${set_ver_nginx}.tar.gz
 tar zxvf openssl-${set_ver_openssl}.tar.gz
 tar zxvf zlib-${set_ver_zlib}.tar.gz
-cd /root/hazx/src/nginx-${set_ver_nginx}/
 
 ## 配置Nginx
 echo "配置Nginx..."
+cd /root/hazx/src/nginx-${set_ver_nginx}/
 ./configure \
     --prefix=/web_server \
     --with-openssl=/root/hazx/src/openssl-${set_ver_openssl} \
@@ -37,9 +56,17 @@ echo "配置Nginx..."
     --with-stream_ssl_module
 
 ## 修改特征
-sed -i "s/\"Server\:\ \"\ NGINX_VER\ CRLF\;/\"Server\:\ ${set_server_name:-HMengine}\"\ CRLF\;/" src/http/ngx_http_header_filter_module.c
-sed -i "s/<center>\"\ NGINX_VER\ \"<\/center>/<center>${set_server_name:-HMengine}<\/center>/" src/http/ngx_http_special_response.c
+sed -i "s/\"${set_ver_nginx}\"/\"\"/" src/core/nginx.h
+sed -i "s/\"nginx\/\"\ NGINX_VERSION/\"${set_server_name:-HMengine}\"/" src/core/nginx.h
+sed -i "s/\"NGINX\"/\"${set_server_name:-HMengine}\"/" src/core/nginx.h
+sed -i "s/nginx\"\ CRLF/${set_server_name:-HMengine}\"\ CRLF/" src/http/ngx_http_header_filter_module.c
+sed -i "s/nginx<\/center>/${set_server_name:-HMengine}<\/center>/" src/http/ngx_http_special_response.c
 sed -i "s/nginx\:/${set_server_name:-HMengine}\:/" src/os/unix/ngx_setproctitle.c
+server_name_len=$(echo -n ${set_server_name:-HMengine} | wc -c)
+server_name_hpack_escape=$(printf "%s" "$server_name_hpack" | sed "s/\\\x/\\\\\\\x/g")
+sed -i "s/nginx\[5\]/nginx\[${server_name_len}\]/" src/http/v2/ngx_http_v2_filter_module.c
+sed -i "s/\\\x84\\\xaa\\\x63\\\x55\\\xe7/${server_name_hpack_escape}/" src/http/v2/ngx_http_v2_filter_module.c
+sed -i "s/\"nginx\"/\"${set_server_name:-HMengine}\"/g" src/http/v3/ngx_http_v3_filter_module.c
 sleep 6
 
 ## 编译Nginx
