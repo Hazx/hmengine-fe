@@ -27,7 +27,7 @@ fi
 export PATH=$PATH:/root/hazx/src/go/bin
 cd /root/hazx/src/nginx-hpack-encode
 go mod tidy
-server_name_hpack=$(go run nginx-hpack-encode.go ${set_server_name:-HMengine})
+export server_name_hpack=$(go run nginx-hpack-encode.go ${set_server_name:-HMengine})
 sleep 6
 
 ## 处理源码
@@ -62,7 +62,7 @@ sed -i "s/\"NGINX\"/\"${set_server_name:-HMengine}\"/" src/core/nginx.h
 sed -i "s/nginx\"\ CRLF/${set_server_name:-HMengine}\"\ CRLF/" src/http/ngx_http_header_filter_module.c
 sed -i "s/nginx<\/center>/${set_server_name:-HMengine}<\/center>/" src/http/ngx_http_special_response.c
 sed -i "s/nginx\:/${set_server_name:-HMengine}\:/" src/os/unix/ngx_setproctitle.c
-server_name_len=$(echo -n ${set_server_name:-HMengine} | wc -c)
+server_name_len=$(echo $server_name_hpack | grep -o '\x' | wc -l)
 server_name_hpack_escape=$(printf "%s" "$server_name_hpack" | sed "s/\\\x/\\\\\\\x/g")
 sed -i "s/nginx\[5\]/nginx\[${server_name_len}\]/" src/http/v2/ngx_http_v2_filter_module.c
 sed -i "s/\\\x84\\\xaa\\\x63\\\x55\\\xe7/${server_name_hpack_escape}/" src/http/v2/ngx_http_v2_filter_module.c

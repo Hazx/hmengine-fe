@@ -41,4 +41,4 @@ chmod a+x /web_server/sbin/fe
 chmod a+x /web_server/webserver.sh
 
 ## 清理缓存
-yum clean all
+apt clean all

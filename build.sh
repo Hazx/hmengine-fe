@@ -8,7 +8,7 @@
 
 docker_path=hazx
 docker_img=hmengine-fe
-docker_tag=1.6
+docker_tag=1.7
 docker_base=ubuntu:jammy-20240911.1
 ## 编译线程数
 make_threads=${1:-2}
